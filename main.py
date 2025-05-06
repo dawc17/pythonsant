@@ -44,33 +44,48 @@ startY = gridY // 2
 
 ant = Ant(startX, startY)
 
+ant_speed = 100  
+time_since_last_move = 0
+
 running = True
 step = 0
 while running:
-    clock.tick(1000000)  # Limit to however many frames per second you want
+    dt = clock.tick(60) / 1000.0  
+    time_since_last_move += dt
 
-    # Event handler to quit
+    # Process events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
             break
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                ant_speed += 100
+            elif event.key == pygame.K_DOWN and ant_speed > 1:
+                ant_speed -= 100
+            print(f"Ant speed: {ant_speed} steps per second")
 
-    # Safety check: stop if ant goes off grid
-    if not (0 <= ant.xPos < gridX and 0 <= ant.yPos < gridY):
-        print("Ant went out of bounds.")
+    update_interval = 1.0 / ant_speed 
+    
+    while time_since_last_move >= update_interval:
+        if not (0 <= ant.xPos < gridX and 0 <= ant.yPos < gridY):
+            ant.xPos = ant.xPos % gridX
+            ant.yPos = ant.yPos % gridY
+            print(f"Ant wrapped around to position ({ant.xPos}, {ant.yPos})")
 
-    # Langton's ant logic
-    currentColor = grid[ant.yPos][ant.xPos]
+        # ant logic
+        currentColor = grid[ant.yPos][ant.xPos]
 
-    if currentColor == 0:
-        ant.turnRight()
-        grid[ant.yPos][ant.xPos] = 1
-    else:
-        ant.turnLeft()
-        grid[ant.yPos][ant.xPos] = 0
+        if currentColor == 0:
+            ant.turnRight()
+            grid[ant.yPos][ant.xPos] = 1
+        else:
+            ant.turnLeft()
+            grid[ant.yPos][ant.xPos] = 0
 
-    ant.moveForward()
-    step += 1
+        ant.moveForward()
+        step += 1
+        time_since_last_move -= update_interval
 
     # --- Drawing the grid ---
     for y in range(gridY):
