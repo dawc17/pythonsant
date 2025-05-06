@@ -47,7 +47,7 @@ ant = Ant(startX, startY)
 running = True
 step = 0
 while running:
-    clock.tick(1000000)  # Limit to 60 frames per second
+    clock.tick(1000000)  # Limit to however many frames per second you want
 
     # Event handler to quit
     for event in pygame.event.get():
